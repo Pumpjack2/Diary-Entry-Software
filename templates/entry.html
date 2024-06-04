@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.theflyingrat.com/assets/css/normalize.min.css">
+</head>
+<body>
+    <form name="entryForm" class="entryForm" onsubmit="submitEntry(event)">
+        <Section id="createEntry">
+            <section id="entryHeading">
+                <input class="entryName" type="text" name="entryName" placeholder="Name of Entry...">    
+                <div class="productivity_check" name="productivityCheck">
+                    <label>Did you have a productive day?</label><br>
+                    <label>Yes</label>
+                    <input type="radio" name="productivityCheck" value="Yes">
+                    <label>No</label>
+                    <input type="radio" name="productivityCheck" value="No">
+                </div>
+
+                <div class="duration_check" name="durationCheck">
+                    <label>How long did it take you to complete your work/chores?</label><br>
+                    <label>Days:</label>
+                    <input class="numberOfDays" name="numberOfDays" type="number" style="width: 2em;">
+                    <label>Hours:</label>
+                    <input class="numberOfHours" name="numberOfHours" type="number" style="width: 2em;">
+                    <label>Minutes:</label>
+                    <input class="numberOfMins" name="numberOfMinutes" type="number" style="width: 2em;">
+                </div>
+            
+            </section>
+            <div class="flex-break"></div>
+
+            <section id="entryBody">
+                <textarea required class="entryBodyText" name="entryBodyInput" type="text" placeholder=""></textarea>
+            </section>
+            <button class="entryButton" name="submit" type="submit" value="submit">Submit</button>
+        </Section>
+    </form>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

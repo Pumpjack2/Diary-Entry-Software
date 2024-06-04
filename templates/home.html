@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.theflyingrat.com/assets/css/normalize.min.css">
+</head>
+<body>
+    
+    <section id="home">
+        <div class="topNavBar">
+            <form id="searchForm" onsubmit="submitSearch(event)">
+
+                <input class="searchBar" type="search" name="search" placeholder="Search..." autocomplete="off">
+                <button class="searchButton" name="submit" type="submit" value="submit">Submit</button>
+
+            </form>
+            <div class="entryTab">
+            <a class="entryTabLink" href="/entry">+ New Entry</a>
+            </div>
+        </div>
+        
+    </section>
+    <section id="searchSection">
+
+        <div id="searchedForm">
+            <label>Name of file:</label>
+            <p id="name_of_file"></p>
+            <label>Was This Day Productive?:</label>
+            <p id="productive_day"></p>
+            <label>Time To Complete:</label>
+            <p id="time_to_complete_tasks"></p>
+            <label>Body:</label>
+            <p id="body"></p>
+        </div>
+        
+        
+    </section>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
