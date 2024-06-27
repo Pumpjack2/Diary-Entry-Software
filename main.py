@@ -29,7 +29,7 @@ except Exception:
     exit()
 
 # Defines the folder name for the entries to be stored.
-path = './diaryEntries'
+path = "./diaryEntries"
 
 # When the code starts up.
 # Creates a folder for the entries if a folder doesn't already exist. 
@@ -58,11 +58,21 @@ def homepage():
 @app.route('/register/submit', methods=["post"])
 def submit():
 
+    json = request.json
+
     # Collects values from the html inputs and stores them 
     # within their respective variables.
-    name = request.form.get("name")
-    tempPassword1 = request.form.get("tempPassword1")
-    tempPassword2 = request.form.get("tempPassword2")
+    name = json["name"]
+    tempPassword1 = json["tempPassword1"]
+    tempPassword2 = json["tempPassword2"]
+
+    if not (name and tempPassword1 and tempPassword2):
+        return "Bad Request", 400
+    
+    registerGroup = name + tempPassword1 + tempPassword2
+    
+    if registerGroup.isalnum() is False:
+        return "Bad Request", 400
 
     # Sets the parameters for the validatePassword() and checkDatabase() function.
     validatePassword(name, tempPassword1, tempPassword2)
@@ -81,11 +91,21 @@ def register():
 # Create a route for the submission
 @app.route("/login/submit", methods=["post"])
 def loginSubmission():
-    
+
+    json = request.json
+
     # Collects values from the html inputs and stores them 
     # within their respective variables.
-    username = request.form.get("username")
-    loginPassword = request.form.get("loginPassword")
+    username = json["username"]
+    loginPassword = json["loginPassword"]
+
+    if not (username and loginPassword):
+        return "Bad Request", 400
+    
+    loginGroup = username + loginPassword
+
+    if loginGroup.isalnum() is False:
+        return "Bad Request", 400
 
     # Sets the parameters for the checkPassword() function.
     if checkPassword(username, loginPassword) is True:
@@ -94,7 +114,7 @@ def loginSubmission():
         session["user"] = username
 
         # Redirect the user to the home page.
-        return redirect("/home", code=301)
+        return "", 200
     
     else:
 
@@ -119,8 +139,16 @@ def home():
 @app.route("/home/search", methods=["post"])
 def homeSubmission():
 
+    json = request.json
+
     # Retrieves the search request from the html form.
-    search = request.form.get("search")
+    search = json["search"]
+
+    if not (search):
+        return "Bad Request", 400
+
+    if search.isalnum() is False:
+        return "Bad Request", 400
 
     # Runs the searchDatabase() function and returns the response to the string.
     response = searchDatabase(search)
@@ -159,9 +187,18 @@ def entrySubmission():
     numberOfMinutes = request.form.get("numberOfMinutes")
     entryBodyInput = request.form.get("entryBodyInput")
 
+    # Checks if inputs are empty or not.
+    if not (entryName and productivityCheck and numberOfDays and numberOfHours and numberOfMinutes and entryBodyInput):
+        return "Bad Request", 400
+    
+    entryGroup = entryName + productivityCheck + numberOfDays + numberOfHours + numberOfMinutes + entryBodyInput
+
+    if entryGroup.isalnum() is False:
+        return "Bad Request", 400
+
     # Sets the parameters for the fileEntry() function.
     fileEntry(entryName, productivityCheck, numberOfDays, numberOfHours, numberOfMinutes, entryBodyInput)
-    
+
     # Once the entry has been entered into the database the user is redirected to the home page.
     return redirect("/home", code=301)
 
@@ -180,9 +217,6 @@ def styleRegister():
 
 def checkDatabase(name):
 
-    #!!!NEED TO WORK ON THIS!!!
-
-    #print("Creating new table.")
     #db.execute("CREATE TABLE users (name, password, salt, entries)")
     check = db.execute("SELECT * FROM users WHERE name=(?)", name)
     

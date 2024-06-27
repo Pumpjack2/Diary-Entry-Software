@@ -13,7 +13,7 @@
     <section id="register">
         <a class="register-close-btn" href="/login">Login</a>
         <!--Contains all the input within the form-->
-        <form name="Form" id="form" onsubmit="submitForm()" action="/register/submit" method="post">
+        <form name="Form" id="form">
         
 
             <label for="name" >Enter Name:</label><br>
@@ -25,12 +25,12 @@
             <label for="password2">Re-enter Password:</label><br>
             <input type="password" name="tempPassword2" autocomplete="off"><br>
 
-            <button class="registerButton" name="submit" type="submit" value="submit" onclick="closeForm()">Submit</button>
+            <button class="registerButton" name="submit" type="submit" value="submit">Submit</button>
          </form>
         
     </section>
     
-<script src="/static/script.js"></script>
+<script src="/static/register.js"></script>
 
 </body>
 </html>
