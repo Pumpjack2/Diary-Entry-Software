@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Submit an Entry</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdn.theflyingrat.com/assets/css/normalize.min.css">
 </head>
 <body>
-    <form name="entryForm" class="entryForm" onsubmit="submitEntry(event)">
+    <form id="entryForm" class="entryForm">
         <Section id="createEntry">
             <section id="entryHeading">
                 <input class="entryName" type="text" name="entryName" placeholder="Name of Entry...">    
@@ -41,5 +41,6 @@
     </form>
 
 <script src="/static/entry.js"></script>
+
 </body>
 </html>
