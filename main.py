@@ -4,7 +4,7 @@ import hashlib
 import json
 import os
 from cs50 import SQL
-from flask import Flask, render_template, request, redirect, session, send_file
+from flask import Flask, render_template, request, redirect, session
 from uuid import uuid4
 
 
@@ -56,6 +56,8 @@ except FileExistsError:
 @app.route('/', methods=["get"])
 def index():
     return redirect("/home", code=301)
+
+
 
 # GET route for the login page.
 @app.route('/login', methods=["get"])
@@ -221,9 +223,11 @@ def entrySubmission():
     #return redirect("/home", code=301)
 
 
+
 #------------------------------------------#
 #----------------Functions-----------------#
 #------------------------------------------#
+
 
 
 # Lambda function to check if the user already exists in the database, True if exist
