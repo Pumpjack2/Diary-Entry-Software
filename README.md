@@ -2,6 +2,8 @@ Hello there!
 
 This project is made to be able to store diary entries of multiple people securely.
 
+Upon first run, please run "pip install -r requirements.txt" to install required dependencies.
+
 The program can:
 - Convert passwords to hashes
 - Cannot know the password of a user
