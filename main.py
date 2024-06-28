@@ -13,15 +13,6 @@ PORT = 3004
 
 # Defines the folder name for the entries to be stored.
 PATH = "./diaryEntries" 
-# ^^^^^^^^^^^^^^^^^^
-# 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
-# Capitalized variable name signifies a "constant." It's not really constant, but marks it should't change
-# Constants tend to be placed at the top of the program for easy-changing
-# ^^^^^^^^^^^^^^^^^^
-# Pls remove this comment
-# 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
-# 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
-
 
 # Creates new flask app.
 app = Flask(__name__)
@@ -205,18 +196,6 @@ def entrySubmission():
 
     # Sets the parameters for the fileEntry() function.
     file_entry(entry_name, productivity_check, number_of_days, number_of_hours, number_of_minutes, entry_body_input)
-
-    # ^^^^^^^^^^^^^^^^^^
-    # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
-    # You never checked if this is successful or not. Even if its not successful, it'll return a 200 OK
-    # This is fine, but just be aware of it. Only reason if it'd fail if environment ran out of disk space
-    # or you ran this python app on like MacOS or Linux
-    # ^^^^^^^^^^^^^^^^^^
-    # Pls remove this comment
-    # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
-    # 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
-
-
 
     # Once the entry has been entered into the database the user is redirected to the home page.
     return "OK!", 200
