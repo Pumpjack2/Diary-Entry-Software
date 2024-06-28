@@ -187,9 +187,9 @@ def entrySubmission():
     if not (entry_name and productivity_check and number_of_days and number_of_hours and number_of_minutes and entry_body_input and True):
         return "Bad Request", 400
     
-    # Validate all entries are alphanumeric
+    # Validate all entries are alphanumeric, remove spaces since they're allowed.
     entryGroup = entry_name + productivity_check + number_of_days + number_of_hours + number_of_minutes + entry_body_input
-    if entryGroup.isalnum() is False:
+    if entryGroup.replace(" ", "").isalnum() is False: 
         return "Bad Request", 400
 
 
