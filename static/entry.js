@@ -2,19 +2,23 @@
 const form = document.getElementById("entryForm");
 
 form.addEventListener("submit", async (event) => {
+    // Prevent form from submitting as it normally would
     event.preventDefault();
 
+    // Get the form data
     const data = new FormData(event.target);    
     
+    // Send the form data to the API
     try {
         let response = await fetch("/entry/submit", {
-            method: "post",
+            method: "POST",
             body: data
         })
         
+        // Act based on what the API told us
         switch(response.status) {
             case 200:
-                alert("Ok!");
+                alert("Entry created!");
                 window.location.href = "/home";
                 return true;
             case 400:

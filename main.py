@@ -4,8 +4,15 @@ import hashlib
 import json
 import os
 from cs50 import SQL
-from flask import Flask, render_template, request, redirect, session, send_file
+from flask import Flask, render_template, request, redirect, session
 from uuid import uuid4
+
+
+PORT = 3004
+
+
+# Defines the folder name for the entries to be stored.
+PATH = "./diaryEntries" 
 
 # Creates new flask app.
 app = Flask(__name__)
@@ -14,200 +21,186 @@ app = Flask(__name__)
 # Uses uuid4() to change the secret_key so that cookies expire once the server is closed due to the secret_key changing.
 app.secret_key = str(uuid4())
 
-# Try's to connect to the database.
+# Try to connect to the database. If connection is unsuccessful the program will print an error statement to the terminal.
 try:
-
-    # Defines the SQL database as the string db
     db = SQL("sqlite:///database.db")
-
-# If connection is unsuccessful the program will print an error statement to the terminal.
 except Exception:
-
-    # Displays error message if connection is not established.
     print("Couldn't connect to database!")
-    # Terminates the runtime of the program.
-    exit()
+    exit(1)
 
-# Defines the folder name for the entries to be stored.
-path = "./diaryEntries"
-
-# When the code starts up.
 # Creates a folder for the entries if a folder doesn't already exist. 
 try:
+    os.mkdir(PATH)
+    print("Folder created! " + PATH)
 
-    # Makes a folder based of the path string.
-    os.mkdir(path)
-
-    # Print to the terminal that the path was created.
-    print("Folder created! " + path)
-
-# Sends a message that a folder already exists to the terminal.
+# If the folder exists, show a warning, but proceed
 except FileExistsError:
+    print(PATH + " already exists!")
 
-    # Prints to the terminal that the folder already exists.
-    print(path + " already exists!")
 
-# Creates a route for the register page.
+
+#------------------------------------------#
+#------------------Routes------------------#
+#------------------------------------------#
+
+# GET route for the index page; redirect to home.
+@app.route('/', methods=["get"])
+def index():
+    return redirect("/home", code=301)
+
+
+
+# GET route for the login page.
 @app.route('/login', methods=["get"])
-def homepage():
-
-    # Returns the html code back to the route.
+def login():
     return render_template("login.html")
 
-# Creates a route for the submitted data form the register.
-@app.route('/register/submit', methods=["post"])
-def submit():
-
-    json = request.json
-
-    # Collects values from the html inputs and stores them 
-    # within their respective variables.
-    name = json["name"]
-    tempPassword1 = json["tempPassword1"]
-    tempPassword2 = json["tempPassword2"]
-
-    if not (name and tempPassword1 and tempPassword2):
-        return "Bad Request", 400
-    
-    registerGroup = name + tempPassword1 + tempPassword2
-    
-    if registerGroup.isalnum() is False:
-        return "Bad Request", 400
-
-    # Sets the parameters for the validatePassword() and checkDatabase() function.
-    validatePassword(name, tempPassword1, tempPassword2)
-    checkDatabase(name)
-    
-    # Returns the html code back to the route.
-    return redirect("/login", code=301)
-
-# Creates a route for the login
-@app.route('/register', methods=["get"])
-def register():
-
-    # Returns the html code back to the login.
-    return render_template("register.html")
-
-# Create a route for the submission
+# POST route for the login submission
 @app.route("/login/submit", methods=["post"])
 def loginSubmission():
 
+    # Retrieve the submitted form json body
     json = request.json
 
-    # Collects values from the html inputs and stores them 
-    # within their respective variables.
+    # Collects values from the request and stores them within their respective variables.
     username = json["username"]
     loginPassword = json["loginPassword"]
 
+    # Existence check
     if not (username and loginPassword):
         return "Bad Request", 400
     
+    # Validating that the username and password is alphanumeric
     loginGroup = username + loginPassword
-
     if loginGroup.isalnum() is False:
         return "Bad Request", 400
 
-    # Sets the parameters for the checkPassword() function.
-    if checkPassword(username, loginPassword) is True:
-
+    # Ensures the password is correct, then return a 200 OK, otherwise send a 301 REDIRECT back to login
+    if check_password(username, loginPassword) is True:
         # Creates a session key so that the user can use the home page.
         session["user"] = username
-
-        # Redirect the user to the home page.
-        return "", 200
+        return "OK!", 200 # 200 OK
     
     else:
+        return "Unauthorized", 401 # 401 UNAUTHORIZED
 
-        # If the password is incorrect redirects the user back to the login page.
-        return redirect("/login", code=301)
 
-# Creates a route for the home page.
+
+# GET route for the register page
+@app.route('/register', methods=["get"])
+def register():
+    return render_template("register.html")
+
+# POST route for the submitted data from registration
+@app.route('/register/submit', methods=["post"])
+def registerSubmission():
+
+    # Retrieve the submitted form json body
+    json = request.json
+
+    # Collects values from the request and stores them within their respective variables.
+    username = json["name"]
+    password = json["tempPassword1"]
+    confirm_password = json["tempPassword2"]
+
+    # Existence check
+    if not (username and password and confirm_password):
+        return "Bad Request", 400
+    
+    # Validating that the username and password is alphanumeric
+    registerGroup = username + password + confirm_password
+    if registerGroup.isalnum() is False:
+        return "Bad Request", 400
+
+    # Checks if we failed to create a user, either due to password mismatch or already existing user
+    if create_user(username, password, confirm_password) is False:
+        return "Bad Request", 400
+
+    # If we reached this point, checks have passed. We know the user has been created; 200 OK
+    return "OK!", 200
+
+
+
+# GET route for the home page.
 @app.route("/home", methods=["get"])
 def home():
-
-    # checks if the user has a session key before allowing the user to use the page.
+    
+    # Ensures the user has a valid session token before rendering home otherwise redirect user back to login
     if "user" in session:
-        
-        # If the user has a session key the page is rendered.
         return render_template("home.html")
-    
-    # Otherwise the user is sent back to the login page.
     else:
-        return redirect("/login")
+        return redirect("/login", code=302)
     
-# Creates a route for the search input in the home page.
+# POST route for the search input in the home page.
 @app.route("/home/search", methods=["post"])
 def homeSubmission():
 
+    # Retrieve the submitted form json body
     json = request.json
 
-    # Retrieves the search request from the html form.
+    # Retrieves the search value from the html form.
     search = json["search"]
 
+    # Existence check. Return 400 BAD REQUEST
     if not (search):
         return "Bad Request", 400
 
+    # Validate search term is alphanumeric. Return 400 BAD REQUEST
     if search.isalnum() is False:
         return "Bad Request", 400
 
-    # Runs the searchDatabase() function and returns the response to the string.
-    response = searchDatabase(search)
+    # Hash the search term into SHA256
+    response = hash_file_name(search)
 
-    # Checks to see if a response was returned.
-    if response:
+    # # If we didn't find the entry, return a 404 NOT FOUND
+    # if not response:
+    #     return "Not found", 404
 
-        # If response is returned then python opens the file and returns its contents to the front-end
+    # Try to read the content of the entry and return its data, otherwise return 404 NOT FOUND
+    try:
         f = open("./diaryEntries/" + response + ".json", "r")
+        return f.read(), 200
+    except FileNotFoundError:
+        return "Not found", 404
 
-        # Returns the searched file.
-        return f.read()
-    
-    # If a file wasn't found then it redirects the user back to the home page.
-    else:
 
-        # Redirects back to the home page.
-        return redirect("/home", code=301)
 
-# Creates a route to  render the create entry page.
+
+# GET route to render the create entry page.
 @app.route("/entry", methods=["get"])
 def entry():
-
-    # Renders the html code for the create entry page.
     return render_template("entry.html")
 
-# Creates a route for the submission of a new entry.
+# POST route for the submission of a new entry.
 @app.route("/entry/submit", methods=["post"])
 def entrySubmission():
 
     # Retrieving all the inputs from the html entry form.
-    entryName = request.form.get("entryName")
-    productivityCheck = request.form.get("productivityCheck")
-    numberOfDays = request.form.get("numberOfDays")
-    numberOfHours = request.form.get("numberOfHours")
-    numberOfMinutes = request.form.get("numberOfMinutes")
-    entryBodyInput = request.form.get("entryBodyInput")
+    entry_name = request.form.get("entryName")
+    productivity_check = request.form.get("productivityCheck")
+    number_of_days = request.form.get("numberOfDays")
+    number_of_hours = request.form.get("numberOfHours")
+    number_of_minutes = request.form.get("numberOfMinutes")
+    entry_body_input = request.form.get("entryBodyInput")
 
-    # Checks if inputs are empty or not.
-    if not (entryName and productivityCheck and numberOfDays and numberOfHours and numberOfMinutes and entryBodyInput):
+    # Existence check for the required fields, if any are False (don't exist), this block will run
+    if not (entry_name and productivity_check and number_of_days and number_of_hours and number_of_minutes and entry_body_input and True):
         return "Bad Request", 400
     
-    entryGroup = entryName + productivityCheck + numberOfDays + numberOfHours + numberOfMinutes + entryBodyInput
-
+    # Validate all entries are alphanumeric
+    entryGroup = entry_name + productivity_check + number_of_days + number_of_hours + number_of_minutes + entry_body_input
     if entryGroup.isalnum() is False:
         return "Bad Request", 400
 
+
+
     # Sets the parameters for the fileEntry() function.
-    fileEntry(entryName, productivityCheck, numberOfDays, numberOfHours, numberOfMinutes, entryBodyInput)
+    file_entry(entry_name, productivity_check, number_of_days, number_of_hours, number_of_minutes, entry_body_input)
 
     # Once the entry has been entered into the database the user is redirected to the home page.
-    return redirect("/home", code=301)
+    return "OK!", 200
+    #return redirect("/home", code=301)
 
-# Creates a route for the css.
-@app.route('/', methods=["get"])
-def styleRegister():
-
-    # Returns the css file to the route.
-    return render_template("login.html")
 
 
 #------------------------------------------#
@@ -215,104 +208,71 @@ def styleRegister():
 #------------------------------------------#
 
 
-def checkDatabase(name):
 
-    #db.execute("CREATE TABLE users (name, password, salt, entries)")
-    check = db.execute("SELECT * FROM users WHERE name=(?)", name)
-    
-    # If the user doesn't exist in the database.
-    if check == []:
+# Lambda function to check if the user already exists in the database, True if exist
+check_database: bool = lambda name: True if db.execute("SELECT * FROM users WHERE name=(?)", name) else False
 
-        # Returns False.
-        return False
-    
-    # If the user does exist.
-    else:
+# Lambda function that hashes the search request
+hash_file_name = lambda search: hashlib.sha256(search.encode()).hexdigest()
 
-        # Returns True.
-        return True
+
 
 # Declares the function to validate the password creation.
-def validatePassword(name, tempPassword1, tempPassword2):
+def create_user(name: str, password: str, confirm_password: str) -> bool:
 
-    # Declares an if statement that checks that tempPassword1 is the same as tempPassword2.
-    if tempPassword1 == tempPassword2:
+    # Guard clause to prevent password mismatch
+    if password != confirm_password:
+        print("Password mismatch!")
+        return False
+    
+    # Guard clause to ensure the user doesn't already exist in the database
+    if check_database(name) is True:
+        print("User already registered!")
+        return False
+    
+    print("Hashing password...")
 
-        # Defines the password variable to be the tempPassword1 that 
-        # is encoded into bytes using encode().
-        password = tempPassword1.encode()
+    # Hash the password with use of a randomly generated salt
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode(), salt)
 
-        # Notifies the terminal that there is a password match
-        # and that it has begun converting the password into a hash.
-        print("Password Match")
-        print("Converting password to hash...")
+    print(f"Hashing completed. \n Result: {hashed_password}")
+    
+    # By this point, we know the passwords match, they don't have an account already, and the password is securely hashed 
+    
+    # Finally commit the new user into the database
+    db.execute("INSERT INTO users (name, password, salt) VALUES(?, ?, ?)", name, hashed_password, salt)
+    return True
 
-        # Defines the salt variable as a randomly generate salt using bcrypt.gensalt(),
-        # also defines the hashPsw as the result of the password and the salt
-        # that gets mixed together using bcrypt.hashpw().
-        salt = bcrypt.gensalt()
-        hashedPsw = bcrypt.hashpw(password, salt)
 
-        # Notifies the terminal that the password has been converted 
-        # into a hash and prints the result.
-        print("Password converted to hash.")
-        print("Result: ", hashedPsw)
-        
-        # Retrieves the response from the checkDatabase() function once it has checked the database for the user 
-        # wanting to register to ensure the dont already exist in the database.
-        response = checkDatabase(name)
-
-        # If the person doesn't exist in the database.
-        if response is False:
-
-            # Inserts the name, hashed password and the salt that was used
-            # to hash the password in the respective columns within the SQL database.
-            db.execute("INSERT INTO users (name, password, salt) VALUES(?, ?, ?)", name, hashedPsw, salt)
-
-        # If the user already exists in the database
-        if response is True:
-            # Notifies the terminal that the table exists for that user.
-            user = db.execute("SELECT * FROM users WHERE name=(?)", name)
-            print("Table already exists for " + user)
-
-    # If the tempPassword isn't the same as tempPassword.
-    else:
-        # Notifies the terminal that there is a password mismatch and to try again.
-        print("Password mismatch.")
-        print("Please try again.")
 
 # Declares the function that checks whether the password given to login matches with the one in the database.
-def checkPassword(username, loginPassword: str):
+def check_password(username: str, loginPassword: str) -> bool:
+
+    # Check if the user exists before checking their password matches
+    if check_database(username) is False: return False
 
     # Collects the relevant information about the user from the database.
-    resp = db.execute("SELECT name, password, salt FROM users WHERE name=(?)", username)
+    user = db.execute("SELECT name, password, salt FROM users WHERE name=(?)", username)
 
     # Retrieves the salt used to hash the original password.
-    tempsalt = resp[0]["salt"]
+    salt = user[0]["salt"]
 
     # Hashes the password used to login with the same salt as the registered password for that user.
-    loginHashedPsw = bcrypt.hashpw(loginPassword.encode(), tempsalt)
+    login_hashed_password = bcrypt.hashpw(loginPassword.encode(), salt)
 
-    # Returns the hashed login password is equal to the hashed registered password.
-    # Returning True or False.
-    return loginHashedPsw == resp[0]["password"]
+    # Returns boolean of the hashed login password compared to the database stored hash
+    return login_hashed_password == user[0]["password"]
 
-# Declares a function that hashes the search request the same way the files are.
-def searchDatabase(search):
 
-    # Converts the searched request into a hashed search string.
-    searchHash = hashlib.sha256(search.encode()).hexdigest()
-
-    # Returns the hashed search string outcome.
-    return searchHash
 
 # Declares a function that creates an entry.
-def fileEntry(entryName, productivityCheck, numberOfDays, numberOfHours, numberOfMinutes, entryBodyInput):
+def file_entry(entryName, productivityCheck, numberOfDays, numberOfHours, numberOfMinutes, entryBodyInput):
 
-    # Converts the file name into a hash.
-    fileName = hashlib.sha256(entryName.encode()).hexdigest()
+    # Converts the file name into a hash
+    fileName = hash_file_name(entryName)
 
-    # Creating a dictionary so that it can be put into a JSON file.
+    # Prepare dictionary ready for JSON file.
     dictionary = {
         "name_of_file": entryName,
         "productive_day": productivityCheck,
@@ -320,13 +280,17 @@ def fileEntry(entryName, productivityCheck, numberOfDays, numberOfHours, numberO
         "body": entryBodyInput
     }
 
-    # Creates a string that will write the dictionary with indents.
+    # Creates a JSON string ready for writing.
     json_object = json.dumps(dictionary, indent=4)
 
     # Finally open a file under the hashed file name and writes the contents into the file.
     with open("./diaryEntries/" + fileName + ".json", "w") as outfile:
         outfile.write(json_object)
 
-# Runs the application.
+    return True
+
+
+
+# Runs the application
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=True)
+    app.run(debug=True, use_reloader=True, port=PORT)
