@@ -1,0 +1,54 @@
+:root {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+/* Defines the attributes of the background */
+body {
+    background-color: rgb(35, 35, 35);
+    overflow-x: hidden;
+}
+
+/* Defines the attributes of the links */
+a {
+    font-size: 16px;
+    color: rgb(170, 211, 255);
+}
+
+/* Defines the attributes of the registration form */
+#registrationForm {
+    background-color: rgb(87, 87, 87);
+    border-radius: 15px;
+    padding-top: 2%;
+    text-align: center;
+    margin-top: 1%;
+    position: absolute; 
+    height: 34%;
+    width: 18%;
+    left: 41%;
+    top: 32%;
+}
+
+.registerButton {
+    border-radius: 1vh;
+    margin-top: 5%;
+    font-size: 1.5vw;
+    width: 30%;
+}
+
+.register-close-btn {
+    background-color: rgb(101, 101, 101);
+    text-decoration: none;
+    border-radius: 10px;
+    padding-top: 0.5%;
+    text-align: center;
+    font-size: 16px;
+    position: absolute;
+    display: inline-block;
+    cursor: pointer;
+    border: unset;
+    height: 25px;
+    color: rgb(24, 24, 24);
+    width: 90px;
+    right: 25px;
+    top: 20px;
+}

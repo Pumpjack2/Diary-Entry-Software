@@ -49,11 +49,11 @@ def index():
     return redirect("/home", code=301)
 
 
-
 # GET route for the login page.
 @app.route('/login', methods=["get"])
 def login():
     return render_template("login.html")
+
 
 # POST route for the login submission
 @app.route("/login/submit", methods=["post"])
@@ -85,11 +85,11 @@ def loginSubmission():
         return "Unauthorized", 401 # 401 UNAUTHORIZED
 
 
-
 # GET route for the register page
 @app.route('/register', methods=["get"])
 def register():
     return render_template("register.html")
+
 
 # POST route for the submitted data from registration
 @app.route('/register/submit', methods=["post"])
@@ -120,7 +120,6 @@ def registerSubmission():
     return "OK!", 200
 
 
-
 # GET route for the home page.
 @app.route("/home", methods=["get"])
 def home():
@@ -131,9 +130,11 @@ def home():
     else:
         return redirect("/login", code=302)
     
+
 # POST route for the search input in the home page.
 @app.route("/home/search", methods=["post"])
 def homeSubmission():
+
 
     # Retrieve the submitted form json body
     json = request.json
@@ -164,12 +165,16 @@ def homeSubmission():
         return "Not found", 404
 
 
-
-
 # GET route to render the create entry page.
 @app.route("/entry", methods=["get"])
 def entry():
-    return render_template("entry.html")
+
+    # Ensures the user has a valid session token before rendering home otherwise redirect user back to login
+    if "user" in session:
+        return render_template("entry.html")
+    else:
+        return redirect("/login", code=302)
+
 
 # POST route for the submission of a new entry.
 @app.route("/entry/submit", methods=["post"])
@@ -214,8 +219,6 @@ check_database: bool = lambda name: True if db.execute("SELECT * FROM users WHER
 
 # Lambda function that hashes the search request
 hash_file_name = lambda search: hashlib.sha256(search.encode()).hexdigest()
-
-
 
 # Declares the function to validate the password creation.
 def create_user(name: str, password: str, confirm_password: str) -> bool:

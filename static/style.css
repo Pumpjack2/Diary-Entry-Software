@@ -4,82 +4,16 @@
 }
 
 body {
-    background-color: rgb(49, 60, 69);
+    background-color: rgb(35, 35, 35);
     overflow-x: hidden;
 }
 
 
 /* ##### BUTTONS ##### */
 
-
 a {
     color: rgb(170, 211, 255);
     font-size: 16px;
-}
-
-.registerButton {
-    font-size: 1.5vw;
-    width: 30%;
-    margin-top: 5%;
-    border-radius: 1vh;
-}
-
-.loginButton {
-    font-size: 1.5vw;
-    width: 30%;
-    margin-top: 5%;
-    border-radius: 1vh;
-}
-
-.register-open-btn {
-    width: 50px;
-    position: absolute;
-    border-radius: 10px;
-    top: 20px;
-    right: 25px;
-    cursor: pointer;
-}
-
-.register-close-btn {
-    width: 50px;
-    position: absolute;
-    border-radius: 10px;
-    top: 20px;
-    right: 15px;
-    cursor: pointer;
-}
-
-
-/* ##### REGISTER SECTION ##### */
-
-#form {
-    text-align: center;
-    margin-top: 1%;
-    padding-top: 2%;
-    background-color: aqua;
-    height: 34%;
-    width: 20%;
-    border-radius: 15px;
-    position: absolute; 
-    left: 40%;
-    top: 32%;
-}
-
-
-/* ##### LOGIN SECTION ##### */
-
-
-#loginForm {
-    text-align: center;
-    margin-top: 1%;
-    padding-top: 2%;
-    background-color: aqua;
-    height: 26%;
-    width: 18%;
-    border-radius: 15px;
-    position: absolute; 
-    left: 41%;
-    top: 32%;
 }
 
 
@@ -203,35 +137,8 @@ label {
     color: black;
 }
 
-#name_of_file {
+#name_of_file, #productive_day, #time_to_complete_tasks, #body, #searchForm {
     border: solid rgb(39, 57, 113);
     border-radius: 0.5vh;
     padding: 0.4%;
-}
-
-#productive_day {
-    border: solid rgb(39, 57, 113);
-    border-radius: 0.5vh;
-    padding: 0.4%;
-}
-
-#time_to_complete_tasks {
-    border: solid rgb(39, 57, 113);
-    border-radius: 0.5vh;
-    padding: 0.4%;
-}
-
-#body {
-    border: solid rgb(39, 57, 113);
-    border-radius: 0.5vh;
-    padding: 0.4%;
-    overflow-wrap: break-word;
-    hyphens: auto;
-}
-
-#searchedForm {
-    padding: 1%;
-    display: none;
-    border: solid rgb(17, 42, 117);
-    border-radius: 1vh;
 }

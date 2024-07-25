@@ -1,0 +1,60 @@
+:root {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+/* Defines the attributes of the background */
+body {
+    background-color: rgb(35, 35, 35);
+    overflow-x: hidden;
+}
+
+/* Top Nav Bar Section*/
+
+.topNavBar {
+    background-color: rgb(53, 53, 53);
+    border-radius: 2vh;
+    height: 14vh;
+    margin: auto;
+    width: 180vh;
+}
+
+.entryTabLink {
+    background-color: rgb(87, 87, 87);
+    text-decoration: none;
+    border-radius: 0.8vh;
+    font-size: 18px;
+    border: 0.8vh solid rgb(87, 87, 87);
+    margin: 2.5%;
+    color: black;
+    float: left;
+}
+
+#searchForm {
+    font-size: 22px;
+    position: relative;
+    margin: 2.5%;
+    border: none;
+    float: right;
+}
+
+/* Search Result Section*/
+
+#searchSection {
+    background-color: rgb(87, 87, 87);
+    border-radius: 10px;
+    padding: 10px;
+    margin: auto;
+    height: 80vh;
+    width: 190vh;
+}
+
+#searchSection > p {
+    font-size: 2em;
+    color: black;
+}
+
+#name_of_file, #productive_day, #time_to_complete_tasks, #body {
+    border-radius: 0.5vh;
+    padding: 0.4%;
+    border: solid rgb(87, 87, 87);
+}
