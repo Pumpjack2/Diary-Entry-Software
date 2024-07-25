@@ -94,6 +94,7 @@ def register():
 # POST route for the submitted data from registration
 @app.route('/register/submit', methods=["post"])
 def registerSubmission():
+    if not authenticated(session): return "Unauthorized", 401
 
     # Retrieve the submitted form json body
     json = request.json
@@ -123,17 +124,14 @@ def registerSubmission():
 # GET route for the home page.
 @app.route("/home", methods=["get"])
 def home():
-    
-    # Ensures the user has a valid session token before rendering home otherwise redirect user back to login
-    if "user" in session:
-        return render_template("home.html")
-    else:
-        return redirect("/login", code=302)
+    if not authenticated(session): return redirect("/login", code=302)
+    return render_template("home.html")
     
 
 # POST route for the search input in the home page.
 @app.route("/home/search", methods=["post"])
 def homeSubmission():
+    if not authenticated(session): return "Unauthorized", 401
 
 
     # Retrieve the submitted form json body
@@ -179,6 +177,7 @@ def entry():
 # POST route for the submission of a new entry.
 @app.route("/entry/submit", methods=["post"])
 def entrySubmission():
+    if not authenticated(session): return "Unauthorized", 401
 
     # Retrieving all the inputs from the html entry form.
     entry_name = request.form.get("entryName")
