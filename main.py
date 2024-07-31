@@ -7,9 +7,7 @@ from cs50 import SQL
 from flask import Flask, render_template, request, redirect, session
 from uuid import uuid4
 
-
 PORT = 3004
-
 
 # Defines the folder name for the entries to be stored.
 PATH = "./diaryEntries" 
@@ -43,6 +41,8 @@ except FileExistsError:
 #------------------Routes------------------#
 #------------------------------------------#
 
+
+
 # GET route for the index page; redirect to home.
 @app.route('/', methods=["get"])
 def index():
@@ -58,6 +58,8 @@ def login():
 # POST route for the login submission
 @app.route("/login/submit", methods=["post"])
 def loginSubmission():
+
+
 
     # Retrieve the submitted form json body
     json = request.json
@@ -123,13 +125,19 @@ def registerSubmission():
 # GET route for the home page.
 @app.route("/home", methods=["get"])
 def home():
+
+    if validate_User(session) is False: 
+        return redirect("/login")
+
     return render_template("home.html")
-    
+        
 
 # POST route for the search input in the home page.
 @app.route("/home/search", methods=["post"])
 def homeSubmission():
 
+    if validate_User(session) is False:
+        return redirect ("/login")
 
     # Retrieve the submitted form json body
     json = request.json
@@ -142,7 +150,7 @@ def homeSubmission():
         return "Bad Request", 400
 
     # Validate search term is alphanumeric. Return 400 BAD REQUEST
-    if search.isalnum() is False:
+    if search.replace(" ", "").isalnum() is False:
         return "Bad Request", 400
 
     # Hash the search term into SHA256
@@ -164,16 +172,18 @@ def homeSubmission():
 @app.route("/entry", methods=["get"])
 def entry():
 
-    # Ensures the user has a valid session token before rendering home otherwise redirect user back to login
-    if "user" in session:
-        return render_template("entry.html")
-    else:
-        return redirect("/login", code=302)
+    if validate_User(session) is False:
+        return redirect ("/login")
+    
+    return render_template("entry.html")
 
 
 # POST route for the submission of a new entry.
 @app.route("/entry/submit", methods=["post"])
 def entrySubmission():
+
+    if validate_User(session) is False:
+        return redirect ("/login")
 
     # Retrieving all the inputs from the html entry form.
     entry_name = request.form.get("entryName")
@@ -242,8 +252,6 @@ def create_user(name: str, password: str, confirm_password: str) -> bool:
     db.execute("INSERT INTO users (name, password, salt) VALUES(?, ?, ?)", name, hashed_password, salt)
     return True
 
-
-
 # Declares the function that checks whether the password given to login matches with the one in the database.
 def check_password(username: str, loginPassword: str) -> bool:
 
@@ -262,7 +270,11 @@ def check_password(username: str, loginPassword: str) -> bool:
     # Returns boolean of the hashed login password compared to the database stored hash
     return login_hashed_password == user[0]["password"]
 
+# Declares the function to check if the user is in the session.
+def validate_User(session):
 
+    # Ensures the user has a valid session token before rendering home otherwise redirect user back to login
+    return True if "user" in session else False
 
 # Declares a function that creates an entry.
 def file_entry(entryName, productivityCheck, numberOfDays, numberOfHours, numberOfMinutes, entryBodyInput):
@@ -286,8 +298,6 @@ def file_entry(entryName, productivityCheck, numberOfDays, numberOfHours, number
         outfile.write(json_object)
 
     return True
-
-
 
 # Runs the application
 if __name__ == '__main__':

@@ -23,7 +23,7 @@ async function submitSearch(event) {
     }
 
     // Regex for the allowable characters
-    const regex = /^[a-zA-Z0-9!@#$%^&*()_+-=`~<>?:"{}';/.,]+$/
+    const regex = /^[a-zA-Z0-9!@#$%^&*()_+-=`~<>?:"{}';/., ]+$/
     if (!regex.test(search)) {
         alert("Bad search term!");
         return false;
